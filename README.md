@@ -4,6 +4,8 @@
 
 SecureClaw is a permission-first AI agent framework. Agents can only act when you've explicitly granted them access.
 
+*Human-directed, AI-accelerated.*
+
 ## Why?
 
 OpenClaw proved the demand for personal AI agents. But 100k+ users gave autonomous access to a system with no security model. We call it SecureClaw because security is our north star. Bug bounty coming — seeking sponsors to fund it.
@@ -51,7 +53,7 @@ Or just chat naturally — Claude will request permissions as needed.
 
 ## Status
 
-**MVP** — This is early. Security model is "verifiable by default, visible on demand." We're building in public and inviting scrutiny.
+**MVP** — This is early. Security model is "verifiable by default, visible on demand." We're building in public and welcome feedback.
 
 ## Philosophy
 
