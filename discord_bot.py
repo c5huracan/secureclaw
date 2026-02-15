@@ -2,13 +2,11 @@ import os
 import discord
 from claudette import Chat
 from secureclaw.agent import Agent, register_skill, SKILL_REGISTRY
-from secureclaw.skills import read_file, list_files, http_get
+from secureclaw.skills import read_file
 from secureclaw.permissions import SCOPES, store
 from secureclaw.permissions.ratelimit import RateLimiter
 
 register_skill('read_file', read_file)
-register_skill('list_files', list_files)
-register_skill('http_get', http_get)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -17,8 +15,6 @@ client = discord.Client(intents=intents)
 agents = {}
 chats = {}
 limiter = RateLimiter(max_requests=10, window_seconds=60)
-
-ALLOWED_USERS = set(filter(None, os.environ.get("SECURECLAW_ALLOWED_USERS", "").split(",")))
 
 def get_agent(user_id):
     if user_id not in agents:
@@ -29,23 +25,9 @@ def read_file_tool(path: str) -> str:
     """Read a file at the given path and return its contents."""
     return open(path).read()
 
-def list_files_tool(path: str) -> list:
-    """List files and directories at the given path."""
-    return os.listdir(path)
-
-
-def http_get_tool(url: str) -> str:
-    """Fetch content from a URL."""
-    import httpx
-    return httpx.get(url).text
-
 @client.event
 async def on_ready():
     print(f"SecureClaw connected as {client.user}")
-    if ALLOWED_USERS:
-        print(f"Allowed users: {ALLOWED_USERS}")
-    else:
-        print("No allowlist set — all users permitted")
 
 @client.event
 async def on_message(message):
@@ -58,9 +40,7 @@ async def on_message(message):
 
     uid = str(message.author.id)
 
-    if ALLOWED_USERS and uid not in ALLOWED_USERS:
-        return
-
+    # Rate limit check
     if not limiter.allow(uid):
         await message.channel.send("⏳ Rate limited. Try again in a minute.")
         return
@@ -87,20 +67,13 @@ async def on_message(message):
 
     try:
         if uid not in chats:
-            chats[uid] = Chat(model="claude-sonnet-4-20250514", tools=[read_file_tool, list_files_tool, http_get_tool])
+            chats[uid] = Chat(model="claude-sonnet-4-20250514", tools=[read_file_tool])
         chat = chats[uid]
         response = chat(text)
 
         if response.stop_reason == 'tool_use':
-            tool_name = next((c.name for c in response.content if hasattr(c, 'name')), None)
-            if tool_name == 'read_file_tool' and not store.has(agent.id, 'filesystem.read'):
+            if not store.has(agent.id, 'filesystem.read'):
                 await message.channel.send("🚫 Scope 'filesystem.read' not granted. Use !grant filesystem.read")
-                return
-            if tool_name == 'list_files_tool' and not store.has(agent.id, 'filesystem.list'):
-                await message.channel.send("🚫 Scope 'filesystem.list' not granted. Use !grant filesystem.list")
-                return
-            if tool_name == 'http_get_tool' and not store.has(agent.id, 'network.http'):
-                await message.channel.send("🚫 Scope 'network.http' not granted. Use !grant network.http")
                 return
             response = chat()
 
