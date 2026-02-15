@@ -64,6 +64,30 @@ Or just chat naturally — Claude will request permissions as needed.
   ```
   Leave unset to allow all users.
 
+## SolveIt Integration
+
+Add SecureClaw to your CRAFT.ipynb to protect dialoghelper functions:
+
+1. Copy `solveit_craft.py` contents into a code cell in your CRAFT
+2. Restart kernel
+3. Use `safe_` versions of dialoghelper functions
+
+```python
+# Grant permissions
+grant_dialog('dialog.read')
+grant_dialog('dialog.write')
+
+# Protected read functions
+safe_find_msgs()
+safe_read_msg(msg_id)
+
+# Protected write functions
+safe_add_msg(content="Hello")
+safe_update_msg(msg_id, content="Updated")
+```
+
+Available scopes: `dialog.read`, `dialog.write`
+
 ## Status
 
 **MVP** — This is early. Security model is "verifiable by default, visible on demand." We're building in public and welcome feedback.
