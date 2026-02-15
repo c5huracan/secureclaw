@@ -70,23 +70,20 @@ Add SecureClaw to your CRAFT.ipynb to protect dialoghelper functions:
 
 1. Copy `solveit_craft.py` contents into a code cell in your CRAFT
 2. Restart kernel
-3. Use `safe_` versions of dialoghelper functions
+3. **Important:** Only add the `safe_` functions to your tool list — never the originals
 
 ```python
-# Grant permissions
+# In your tool note, expose only safe versions:
+&`safe_find_msgs`, &`safe_read_msg`, &`safe_add_msg`, &`safe_update_msg`
+
+# Grant permissions as needed
 grant_dialog('dialog.read')
 grant_dialog('dialog.write')
-
-# Protected read functions
-safe_find_msgs()
-safe_read_msg(msg_id)
-
-# Protected write functions
-safe_add_msg(content="Hello")
-safe_update_msg(msg_id, content="Updated")
 ```
 
-Available scopes: `dialog.read`, `dialog.write`
+Available scopes:
+- `dialog.read` — gates `safe_find_msgs`, `safe_read_msg`
+- `dialog.write` — gates `safe_add_msg`, `safe_update_msg`
 
 ## Status
 
