@@ -10,3 +10,9 @@ def list_files(agent_id, path: str) -> list:
 @require_scope('filesystem.read')
 def read_file(agent_id, path):
     return Path(path).read_text()
+
+@require_scope('network.http')
+def http_get(agent_id, url: str) -> str:
+    """Fetch content from a URL."""
+    import httpx
+    return httpx.get(url).text
