@@ -44,12 +44,25 @@ Or just chat naturally — Claude will request permissions as needed.
 
 ## Scopes
 
+**Working now:**
 - `filesystem.read` — Read files
+- `filesystem.list` — List directory contents
+- `network.http` — Fetch URLs
+
+**Defined (not yet wired):**
 - `filesystem.write` — Write files
-- `network.http` — HTTP requests
 - `email.read` / `email.send` — Email access
 - `messaging.send` — Send messages
 - `shell.execute` — Run shell commands
+
+## Defense Layers
+
+- **Rate limiting** — 10 requests per minute per user (configurable)
+- **User allowlist** — Optionally restrict to specific Discord user IDs:
+  ```bash
+  export SECURECLAW_ALLOWED_USERS="123456789,987654321"
+  ```
+  Leave unset to allow all users.
 
 ## Status
 
