@@ -8,6 +8,18 @@ SecureClaw is a permission-first AI agent framework. Agents can only act when yo
 
 OpenClaw proved the demand for personal AI agents. But 100k+ users gave autonomous access to a system with no security model. We call it SecureClaw because security is our north star. Bug bounty coming — seeking sponsors to fund it.
 
+## Discord Setup
+
+1. Go to [discord.com/developers/applications](https://discord.com/developers/applications)
+2. Click **New Application**, name it (e.g., "SecureClaw")
+3. Go to **Bot** tab → **Add Bot**
+4. Copy the **Token** — you'll need this
+5. Enable **Message Content Intent** under Privileged Gateway Intents
+6. Go to **OAuth2 → URL Generator**
+7. Check **bot** under Scopes
+8. Check **Send Messages** and **Read Message History** under Bot Permissions
+9. Copy the URL, open it, and invite the bot to your server
+
 ## Quick Start
 
 ```bash
