@@ -8,7 +8,7 @@ SecureClaw is a permission-first AI agent framework. Agents can only act when yo
 
 ## Why?
 
-OpenClaw proved the demand for personal AI agents. But 100k+ users gave autonomous access to a system with no security model. We call it SecureClaw because security is our north star. Bug bounty coming — seeking sponsors to fund it.
+OpenClaw proved the demand for personal AI agents. But 100k+ users gave autonomous access to a system with no formal security model. We call it SecureClaw because security is our north star. Bug bounty coming — seeking sponsors to fund it.
 
 ## Discord Setup
 
