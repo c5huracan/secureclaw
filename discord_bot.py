@@ -2,11 +2,12 @@ import os
 import discord
 from claudette import Chat
 from secureclaw.agent import Agent, register_skill, SKILL_REGISTRY
-from secureclaw.skills import read_file
+from secureclaw.skills import read_file, list_files
 from secureclaw.permissions import SCOPES, store
 from secureclaw.permissions.ratelimit import RateLimiter
 
 register_skill('read_file', read_file)
+register_skill('list_files', list_files)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -16,7 +17,6 @@ agents = {}
 chats = {}
 limiter = RateLimiter(max_requests=10, window_seconds=60)
 
-# Load allowed users from env var (empty = allow all)
 ALLOWED_USERS = set(filter(None, os.environ.get("SECURECLAW_ALLOWED_USERS", "").split(",")))
 
 def get_agent(user_id):
@@ -27,6 +27,10 @@ def get_agent(user_id):
 def read_file_tool(path: str) -> str:
     """Read a file at the given path and return its contents."""
     return open(path).read()
+
+def list_files_tool(path: str) -> list:
+    """List files and directories at the given path."""
+    return os.listdir(path)
 
 @client.event
 async def on_ready():
@@ -47,11 +51,9 @@ async def on_message(message):
 
     uid = str(message.author.id)
 
-    # Allowlist check (if set)
     if ALLOWED_USERS and uid not in ALLOWED_USERS:
-        return  # silently ignore
+        return
 
-    # Rate limit check
     if not limiter.allow(uid):
         await message.channel.send("⏳ Rate limited. Try again in a minute.")
         return
@@ -78,13 +80,17 @@ async def on_message(message):
 
     try:
         if uid not in chats:
-            chats[uid] = Chat(model="claude-sonnet-4-20250514", tools=[read_file_tool])
+            chats[uid] = Chat(model="claude-sonnet-4-20250514", tools=[read_file_tool, list_files_tool])
         chat = chats[uid]
         response = chat(text)
 
         if response.stop_reason == 'tool_use':
-            if not store.has(agent.id, 'filesystem.read'):
+            tool_name = response.content[0].name if hasattr(response.content[0], 'name') else None
+            if tool_name == 'read_file_tool' and not store.has(agent.id, 'filesystem.read'):
                 await message.channel.send("🚫 Scope 'filesystem.read' not granted. Use !grant filesystem.read")
+                return
+            if tool_name == 'list_files_tool' and not store.has(agent.id, 'filesystem.list'):
+                await message.channel.send("🚫 Scope 'filesystem.list' not granted. Use !grant filesystem.list")
                 return
             response = chat()
 

@@ -1,4 +1,5 @@
 SCOPES = {
+    'filesystem.list',
     'filesystem.read',
     'filesystem.write',
     'network.http',
