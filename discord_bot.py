@@ -4,6 +4,7 @@ from claudette import Chat
 from secureclaw.agent import Agent, register_skill, SKILL_REGISTRY
 from secureclaw.skills import read_file
 from secureclaw.permissions import SCOPES, store
+from secureclaw.permissions.ratelimit import RateLimiter
 
 register_skill('read_file', read_file)
 
@@ -13,6 +14,7 @@ client = discord.Client(intents=intents)
 
 agents = {}
 chats = {}
+limiter = RateLimiter(max_requests=10, window_seconds=60)
 
 def get_agent(user_id):
     if user_id not in agents:
@@ -37,6 +39,12 @@ async def on_message(message):
         return
 
     uid = str(message.author.id)
+
+    # Rate limit check
+    if not limiter.allow(uid):
+        await message.channel.send("⏳ Rate limited. Try again in a minute.")
+        return
+
     agent = get_agent(uid)
 
     if text.startswith('!'):
@@ -63,14 +71,12 @@ async def on_message(message):
         chat = chats[uid]
         response = chat(text)
 
-        # Check if Claude wants to use a tool
         if response.stop_reason == 'tool_use':
             if not store.has(agent.id, 'filesystem.read'):
                 await message.channel.send("🚫 Scope 'filesystem.read' not granted. Use !grant filesystem.read")
                 return
-            response = chat()  # Execute the tool
+            response = chat()
 
-        # Extract text from response
         text_content = [c.text for c in response.content if hasattr(c, 'text')]
         await message.channel.send(text_content[0][:1900] if text_content else "No response")
     except Exception as e:
