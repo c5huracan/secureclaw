@@ -16,3 +16,9 @@ def http_get(agent_id, url: str) -> str:
     """Fetch content from a URL."""
     import httpx
     return httpx.get(url).text
+
+@require_scope('network.http')
+def http_get(agent_id, url: str) -> str:
+    """Fetch content from a URL."""
+    import httpx
+    return httpx.get(url).text
