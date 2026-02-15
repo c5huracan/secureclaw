@@ -85,7 +85,10 @@ async def on_message(message):
         response = chat(text)
 
         if response.stop_reason == 'tool_use':
-            tool_name = response.content[0].name if hasattr(response.content[0], 'name') else None
+            print(f"Tool called: {response.content[0].name if hasattr(response.content[0], 'name') else 'unknown'}")
+            print(f"Response content: {response.content}")
+            # tool_name = response.content[0].name if hasattr(response.content[0], 'name') else None
+            tool_name = next((c.name for c in response.content if hasattr(c, 'name')), None)
             if tool_name == 'read_file_tool' and not store.has(agent.id, 'filesystem.read'):
                 await message.channel.send("🚫 Scope 'filesystem.read' not granted. Use !grant filesystem.read")
                 return
