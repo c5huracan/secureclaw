@@ -16,6 +16,9 @@ agents = {}
 chats = {}
 limiter = RateLimiter(max_requests=10, window_seconds=60)
 
+# Load allowed users from env var (empty = allow all)
+ALLOWED_USERS = set(filter(None, os.environ.get("SECURECLAW_ALLOWED_USERS", "").split(",")))
+
 def get_agent(user_id):
     if user_id not in agents:
         agents[user_id] = Agent(str(user_id))
@@ -28,6 +31,10 @@ def read_file_tool(path: str) -> str:
 @client.event
 async def on_ready():
     print(f"SecureClaw connected as {client.user}")
+    if ALLOWED_USERS:
+        print(f"Allowed users: {ALLOWED_USERS}")
+    else:
+        print("No allowlist set — all users permitted")
 
 @client.event
 async def on_message(message):
@@ -39,6 +46,10 @@ async def on_message(message):
         return
 
     uid = str(message.author.id)
+
+    # Allowlist check (if set)
+    if ALLOWED_USERS and uid not in ALLOWED_USERS:
+        return  # silently ignore
 
     # Rate limit check
     if not limiter.allow(uid):
