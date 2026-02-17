@@ -79,10 +79,15 @@ def past_rejections(name=None):
 
 def load_tools(agent_id=None):
     "Reload all saved tools from disk into SKILL_REGISTRY, optionally auto-granting to agent"
+    import importlib
     s = _read_store()
-    for name, tool in s.items():
-        exec(tool['code'], globals())
-        SKILL_REGISTRY[name] = globals()[name]
+    lines = ['from pathlib import Path', 'import ast, keyword']
+    for tool in s.values(): lines.append(tool['code'])
+    Path('_tools_gen.py').write_text('\n\n'.join(lines))
+    mod = importlib.import_module('_tools_gen')
+    importlib.reload(mod)
+    for name in s:
+        SKILL_REGISTRY[name] = getattr(mod, name)
         SCOPES.add(f"tool.{name}")
         if agent_id: store.grant(agent_id, f"tool.{name}")
     return f"Loaded {len(s)} tools: {', '.join(s.keys())}"

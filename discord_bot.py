@@ -1,6 +1,6 @@
 import os, discord
 from claudette import Chat
-from secureclaw import Agent, load_tools, RateLimiter, SKILL_REGISTRY
+from secureclaw import Agent, load_tools, RateLimiter, SKILL_REGISTRY, store
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -38,7 +38,7 @@ async def on_message(message):
                 case "!scopes": await message.channel.send(f"Available: {list(SKILL_REGISTRY.keys())}")
                 case "!grant": agent.grant(f"tool.{cmd[1]}"); await message.channel.send(f"✓ Granted tool.{cmd[1]}")
                 case "!revoke": agent.revoke(f"tool.{cmd[1]}"); await message.channel.send(f"✓ Revoked tool.{cmd[1]}")
-                case "!grants": await message.channel.send(f"Your grants: {agent.has.__self__}")
+                case "!grants": await message.channel.send(f"Your grants: {store.grants.get(uid, set()) or "none"}")
         except Exception as e: await message.channel.send(f"Error: {e}")
         return
     try:

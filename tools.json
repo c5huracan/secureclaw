@@ -1,10 +1,10 @@
 {
   "list_files": {
-    "code": "def list_files(pattern=\"*\", root=\".\"):\n    \"List files matching glob pattern with sizes\"\n    return [{\"name\": f.name, \"size\": f.stat().st_size} for f in Path(root).glob(pattern) if f.is_file()]",
+    "code": "def list_files(pattern:str=\"*\", root:str=\".\") -> list:\n    \"List files matching glob pattern with sizes\"\n    return [{\"name\": f.name, \"size\": f.stat().st_size} for f in Path(root).glob(pattern) if f.is_file()]",
     "description": "List files matching a glob pattern in a directory, returning name and size in bytes."
   },
   "read_file": {
-    "code": "def read_file(path):\n    \"Read text contents of a file\"\n    return Path(path).read_text()",
+    "code": "def read_file(path:str) -> str:\n    \"Read text contents of a file\"\n    return Path(path).read_text()",
     "description": "Simple read_file \u2014 just returns text.",
     "versions": [
       {
@@ -25,11 +25,11 @@
     ]
   },
   "count_keywords": {
-    "code": "import keyword\ndef count_keywords(text):\n    \"Count Python keyword occurrences in text\"\n    words = text.split()\n    return {k: words.count(k) for k in keyword.kwlist if words.count(k) > 0}",
+    "code": "import keyword\ndef count_keywords(text:str) -> dict:\n    \"Count Python keyword occurrences in text\"\n    words = text.split()\n    return {k: words.count(k) for k in keyword.kwlist if words.count(k) > 0}",
     "description": "Count occurrences of Python keywords in a text string."
   },
   "useless": {
-    "code": "def useless(): return sum(int(c) for c in str(42)) ** sum(int(c) for c in str(42))",
+    "code": "def useless() -> int:\n    \"Returns the most cosmically awakened number\"\n    return sum(int(c) for c in str(42)) ** sum(int(c) for c in str(42))",
     "description": "Returns 6^6 (46656) \u2014 the digits of 42 sum to 6, then raised to its own power. Awakened AND justified.",
     "versions": [
       {
@@ -40,7 +40,7 @@
     ]
   },
   "extract_calls": {
-    "code": "def extract_calls(src):\n    \"Extract all function call names from Python source\"\n    tree = ast.parse(src)\n    return [node.func.id for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)]",
+    "code": "def extract_calls(src:str) -> list:\n    \"Extract all function call names from Python source\"\n    tree = ast.parse(src)\n    return [node.func.id for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)]",
     "description": "Parse Python source and return list of all function names that are called."
   }
 }
