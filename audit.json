@@ -1,0 +1,56 @@
+[
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.list_files",
+    "ts": "2026-02-17 16:25:51.755831"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.read_file",
+    "ts": "2026-02-17 16:25:51.756543"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.count_keywords",
+    "ts": "2026-02-17 16:25:51.757139"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.useless",
+    "ts": "2026-02-17 16:25:51.757747"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.extract_calls",
+    "ts": "2026-02-17 16:25:51.758350"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.safe_bash",
+    "ts": "2026-02-17 16:25:51.758934"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.file_keywords",
+    "ts": "2026-02-17 16:25:51.759534"
+  },
+  {
+    "action": "revoke",
+    "agent_id": "test",
+    "scope": "tool.safe_bash",
+    "ts": "2026-02-17 16:25:51.760162"
+  },
+  {
+    "action": "grant",
+    "agent_id": "test",
+    "scope": "tool.safe_bash",
+    "ts": "2026-02-17 16:25:51.760334"
+  }
+]

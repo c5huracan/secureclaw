@@ -7,6 +7,7 @@ import time
 
 TOOL_STORE = Path('tools.json')
 REJECTION_LOG = Path('rejections.json')
+AUDIT_LOG = Path('audit.json')
 SKILL_REGISTRY = {}
 SCOPES = set()
 
@@ -22,18 +23,20 @@ def _read_rejections():
 
 class GrantStore:
     "In-memory permission store for agent grants with audit trail"
-    def __init__(self): self.grants, self.audit = {}, []
+    def __init__(self):
+        self.grants = {}
+        self.audit = json.loads(AUDIT_LOG.read_text()) if AUDIT_LOG.exists() else []
     def grant(self, agent_id, scope):
         if scope not in SCOPES: raise PermissionError(f"Unknown scope: {scope}")
         self.grants.setdefault(agent_id, set()).add(scope)
-        self.audit.append(dict(action='grant', agent_id=agent_id, scope=scope, ts=str(datetime.now())))
+        self.audit.append(dict(action='grant', agent_id=agent_id, scope=scope, ts=str(datetime.now()))); AUDIT_LOG.write_text(json.dumps(self.audit, indent=2))
         if scope.startswith('tool.'):
             for dep in tool_deps(scope[5:]):
                 dep_scope = f"tool.{dep}"
                 if dep_scope in SCOPES and dep_scope not in self.grants.get(agent_id, set()): self.grant(agent_id, dep_scope)
     def revoke(self, agent_id, scope):
         self.grants.get(agent_id, set()).discard(scope)
-        self.audit.append(dict(action='revoke', agent_id=agent_id, scope=scope, ts=str(datetime.now())))
+        self.audit.append(dict(action='revoke', agent_id=agent_id, scope=scope, ts=str(datetime.now()))); AUDIT_LOG.write_text(json.dumps(self.audit, indent=2))
     def has(self, agent_id, scope): return scope in self.grants.get(agent_id, set())
     def history(self, agent_id=None):
         if agent_id: return [a for a in self.audit if a['agent_id'] == agent_id]
