@@ -5,3 +5,6 @@ __pycache__/
 
 *.ipynb
 _tools_gen.py
+tools.json
+rejections.json
+audit.json
