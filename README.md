@@ -2,7 +2,7 @@
 
 **OpenClaw power, without the YOLO.**
 
-SecureClaw is a permission-first AI agent framework. Agents can only act when you've explicitly granted them access.
+SecureClaw is a permission-first AI agent framework in a single file. Agents can only act when you've explicitly granted them access. They propose tools at runtime; humans approve or reject with feedback; approved tools persist, get auto-scoped, and are immediately usable.
 
 *Human-directed, AI-accelerated.*
 
@@ -10,90 +10,43 @@ SecureClaw is a permission-first AI agent framework. Agents can only act when yo
 
 OpenClaw proved the demand for personal AI agents. But 100k+ users gave autonomous access to a system with no formal security model. We call it SecureClaw because security is our north star. Bug bounty coming - seeking sponsors to fund it.
 
-## Discord Setup
+## How It Works
 
-1. Go to [discord.com/developers/applications](https://discord.com/developers/applications)
-2. Click **New Application**, name it (e.g., "SecureClaw")
-3. Go to **Bot** tab → **Add Bot**
-4. Copy the **Token** - you'll need this
-5. Enable **Message Content Intent** under Privileged Gateway Intents
-6. Go to **OAuth2 → URL Generator**
-7. Check **bot** under Scopes
-8. Check **Send Messages** and **Read Message History** under Bot Permissions
-9. Copy the URL, open it, and invite the bot to your server
+One file: `secureclaw.py`. Tools persist in `tools.json`, rejections in `rejections.json`.
 
-## Quick Start
+```
+propose → compile check → human approves → tools.json + auto-grant to creator
+                        → human rejects  → rejections.json (with reason, for learning)
 
-```bash
-pip install -r requirements.txt
-export SECURECLAW_DISCORD_TOKEN="your_token"
-export ANTHROPIC_API_KEY="your_key"
-python -m secureclaw.discord_bot
+>>> from secureclaw import Agent, load_tools
+>>> agent = Agent('my_agent')
+>>> load_tools(agent_id='my_agent')
+>>> agent.run('list_files', pattern='*.py')
+>>> agent.propose('word_count', 'def word_count(path): return len(open(path).read().split())', 'Count words')
 ```
 
-## Commands
-
-| Command | Description |
-|---------|-------------|
-| `!scopes` | List available permission scopes |
-| `!grant <scope>` | Grant a scope to your agent |
-| `!revoke <scope>` | Revoke a scope |
-| `!grants` | See your current grants |
-
-Or just chat naturally - Claude will request permissions as needed.
-
-## Scopes
-
-**Working now:**
-- `filesystem.read` - Read files
-- `filesystem.list` - List directory contents
-- `network.http` - Fetch URLs
-
-**Defined (not yet wired):**
-- `filesystem.write` - Write files
-- `email.read` / `email.send` - Email access
-- `messaging.send` - Send messages
-- `shell.execute` - Run shell commands
+**Frontends:** Discord bot (`python discord_bot.py`) and CLI (`python cli.py`). Both need `ANTHROPIC_API_KEY`; Discord also needs `SECURECLAW_DISCORD_TOKEN` and optionally `SECURECLAW_ALLOWED_USERS`.
 
 ## Defense Layers
 
-- **Rate limiting** - 10 requests per minute per user (configurable)
-- **User allowlist** - Optionally restrict to specific Discord user IDs:
-  ```bash
-  export SECURECLAW_ALLOWED_USERS="123456789,987654321"
-  ```
-  Leave unset to allow all users.
-
-## SolveIt Integration
-
-Add SecureClaw to your CRAFT.ipynb to protect dialoghelper functions:
-
-1. Copy `solveit_craft.py` contents into a code cell in your CRAFT
-2. Restart kernel
-3. **Important:** Only add the `safe_` functions to your tool list, never the originals
-
-```python
-# In your tool note, expose only safe versions:
-&`safe_find_msgs`, &`safe_read_msg`, &`safe_add_msg`, &`safe_update_msg`
-
-# Grant permissions as needed
-grant_dialog('dialog.read')
-grant_dialog('dialog.write')
-```
-
-Available scopes:
-- `dialog.read` gates `safe_find_msgs`, `safe_read_msg`
-- `dialog.write` gates `safe_add_msg`, `safe_update_msg`
+- **Two-layer permissions** — human approves creation, agent needs scope grant for execution
+- **Auto-grant for creator** — proposing agent gets immediate access; others must be explicitly granted
+- **Syntax validation** — `compile()` check before approval prompt
+- **Dependency tracking** — `tool_deps()` shows which tools call which
+- **Safe removal** — `remove_tool()` warns if other tools depend on it
+- **Rejection feedback** — logged with reasons so agents learn from past rejections
+- **Versioning** — overwritten tools archived with timestamps; `rollback_tool()` to undo
+- **Rate limiting** — configurable per-user sliding window
 
 ## Status
 
-**MVP** - This is early. Security model is "verifiable by default, visible on demand." We're building in public and welcome feedback.
+Phase 3 complete. Self-improving agent loop tested end-to-end. Building toward multi-agent trust (Phase 4).
 
 ## Philosophy
 
 > Logs are for auditors, proof is for users.
 
-We collect everything, show almost nothing. Zero friction by default, full transparency on demand.
+Zero friction by default, full transparency on demand.
 
 ## License
 
