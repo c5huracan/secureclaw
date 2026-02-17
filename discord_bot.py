@@ -38,7 +38,11 @@ async def on_message(message):
                 case "!scopes": await message.channel.send(f"Available: {list(SKILL_REGISTRY.keys())}")
                 case "!grant": agent.grant(f"tool.{cmd[1]}"); chats.pop(uid, None); await message.channel.send(f"✓ Granted tool.{cmd[1]}")
                 case "!revoke": agent.revoke(f"tool.{cmd[1]}"); chats.pop(uid, None); await message.channel.send(f"✓ Revoked tool.{cmd[1]}")
-                case "!grants": await message.channel.send(f"Your grants: {store.grants.get(uid, set()) or "none"}")
+                case "!grants": await message.channel.send(f"Your grants: {store.grants.get(uid, set()) or 'none'}")
+                case "!audit":
+                    hist = store.history(uid)
+                    msg = "\n".join(f"{a['ts'][:19]} {a['action']} {a['scope']}" for a in hist) if hist else "No history"
+                    await message.channel.send(msg)
         except Exception as e: await message.channel.send(f"Error: {e}")
         return
     try:
