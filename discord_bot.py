@@ -36,13 +36,13 @@ async def on_message(message):
         try:
             match cmd[0]:
                 case "!scopes": await message.channel.send(f"Available: {list(SKILL_REGISTRY.keys())}")
-                case "!grant": agent.grant(f"tool.{cmd[1]}"); await message.channel.send(f"✓ Granted tool.{cmd[1]}")
-                case "!revoke": agent.revoke(f"tool.{cmd[1]}"); await message.channel.send(f"✓ Revoked tool.{cmd[1]}")
+                case "!grant": agent.grant(f"tool.{cmd[1]}"); chats.pop(uid, None); await message.channel.send(f"✓ Granted tool.{cmd[1]}")
+                case "!revoke": agent.revoke(f"tool.{cmd[1]}"); chats.pop(uid, None); await message.channel.send(f"✓ Revoked tool.{cmd[1]}")
                 case "!grants": await message.channel.send(f"Your grants: {store.grants.get(uid, set()) or "none"}")
         except Exception as e: await message.channel.send(f"Error: {e}")
         return
     try:
-        tools = [v for v in SKILL_REGISTRY.values()]
+        tools = [v for k,v in SKILL_REGISTRY.items() if agent.has(f"tool.{k}")]
         if uid not in chats: chats[uid] = Chat(model="claude-sonnet-4-20250514", tools=tools)
         response = chats[uid](text)
         if response.stop_reason == "tool_use":
