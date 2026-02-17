@@ -1,4 +1,4 @@
-# 🛡️ SecureClaw
+# SecureClaw 🛡️
 
 **OpenClaw power, without the YOLO.**
 
