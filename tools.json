@@ -1,0 +1,46 @@
+{
+  "list_files": {
+    "code": "def list_files(pattern=\"*\", root=\".\"):\n    \"List files matching glob pattern with sizes\"\n    return [{\"name\": f.name, \"size\": f.stat().st_size} for f in Path(root).glob(pattern) if f.is_file()]",
+    "description": "List files matching a glob pattern in a directory, returning name and size in bytes."
+  },
+  "read_file": {
+    "code": "def read_file(path):\n    \"Read text contents of a file\"\n    return Path(path).read_text()",
+    "description": "Simple read_file \u2014 just returns text.",
+    "versions": [
+      {
+        "code": "def read_file(path):\n    \"Read file with line count\"\n    t = Path(path).read_text()\n    return {\"text\": t, \"lines\": len(t.splitlines())}",
+        "description": "Upgraded read_file that also returns line count.",
+        "ts": "2026-02-17 03:10:43.786272"
+      },
+      {
+        "code": "def read_file(path):\n    \"Read text contents of a file\"\n    return Path(path).read_text()",
+        "description": "Simple read_file \u2014 just returns text.",
+        "ts": "2026-02-17 03:12:07.555704"
+      },
+      {
+        "code": "def read_file(path):\n    \"Read file with line count\"\n    t = Path(path).read_text()\n    return {\"text\": t, \"lines\": len(t.splitlines())}",
+        "description": "Upgraded read_file that also returns line count.",
+        "ts": "2026-02-17 03:12:27.717577"
+      }
+    ]
+  },
+  "count_keywords": {
+    "code": "import keyword\ndef count_keywords(text):\n    \"Count Python keyword occurrences in text\"\n    words = text.split()\n    return {k: words.count(k) for k in keyword.kwlist if words.count(k) > 0}",
+    "description": "Count occurrences of Python keywords in a text string."
+  },
+  "useless": {
+    "code": "def useless(): return sum(int(c) for c in str(42)) ** sum(int(c) for c in str(42))",
+    "description": "Returns 6^6 (46656) \u2014 the digits of 42 sum to 6, then raised to its own power. Awakened AND justified.",
+    "versions": [
+      {
+        "code": "def useless(): return 42_000_000_000",
+        "description": "Returns the most cosmically awakened number: 42 billion.",
+        "ts": "2026-02-17 03:30:04.343232"
+      }
+    ]
+  },
+  "extract_calls": {
+    "code": "def extract_calls(src):\n    \"Extract all function call names from Python source\"\n    tree = ast.parse(src)\n    return [node.func.id for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)]",
+    "description": "Parse Python source and return list of all function names that are called."
+  }
+}
