@@ -46,5 +46,11 @@
   "safe_bash": {
     "code": "from safecmd import safe_run\ndef safe_bash(cmd:str) -> str:\n    \"Run a bash command safely via safecmd allowlist\"\n    return safe_run(cmd)",
     "description": "Run bash commands validated against safecmd allowlist. Blocks dangerous operations."
+  },
+  "file_keywords": {
+    "code": "def file_keywords(path:str) -> dict:\n    \"Read a file and count its Python keywords\"\n    return count_keywords(read_file(path))",
+    "description": "Reads a file and counts Python keywords. Depends on read_file and count_keywords.",
+    "created_by": "alice",
+    "created_at": "2026-02-17 16:03:14.117918"
   }
 }

@@ -27,6 +27,10 @@ class GrantStore:
         if scope not in SCOPES: raise PermissionError(f"Unknown scope: {scope}")
         self.grants.setdefault(agent_id, set()).add(scope)
         self.audit.append(dict(action='grant', agent_id=agent_id, scope=scope, ts=str(datetime.now())))
+        if scope.startswith('tool.'):
+            for dep in tool_deps(scope[5:]):
+                dep_scope = f"tool.{dep}"
+                if dep_scope in SCOPES and dep_scope not in self.grants.get(agent_id, set()): self.grant(agent_id, dep_scope)
     def revoke(self, agent_id, scope):
         self.grants.get(agent_id, set()).discard(scope)
         self.audit.append(dict(action='revoke', agent_id=agent_id, scope=scope, ts=str(datetime.now())))
