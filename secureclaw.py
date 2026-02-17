@@ -21,13 +21,19 @@ def _read_rejections():
     return []
 
 class GrantStore:
-    "In-memory permission store for agent grants"
-    def __init__(self): self.grants = {}
+    "In-memory permission store for agent grants with audit trail"
+    def __init__(self): self.grants, self.audit = {}, []
     def grant(self, agent_id, scope):
         if scope not in SCOPES: raise PermissionError(f"Unknown scope: {scope}")
         self.grants.setdefault(agent_id, set()).add(scope)
-    def revoke(self, agent_id, scope): self.grants.get(agent_id, set()).discard(scope)
+        self.audit.append(dict(action='grant', agent_id=agent_id, scope=scope, ts=str(datetime.now())))
+    def revoke(self, agent_id, scope):
+        self.grants.get(agent_id, set()).discard(scope)
+        self.audit.append(dict(action='revoke', agent_id=agent_id, scope=scope, ts=str(datetime.now())))
     def has(self, agent_id, scope): return scope in self.grants.get(agent_id, set())
+    def history(self, agent_id=None):
+        if agent_id: return [a for a in self.audit if a['agent_id'] == agent_id]
+        return self.audit
 
 store = GrantStore()
 
@@ -115,7 +121,7 @@ def propose_tool(name, code, description, agent_id=None):
         old.setdefault('versions', []).append(dict(code=old['code'], description=old['description'], ts=str(datetime.now())))
         s[name] = dict(code=code, description=description, versions=old['versions'])
     else:
-        s[name] = dict(code=code, description=description)
+        s[name] = dict(code=code, description=description, created_by=agent_id, created_at=str(datetime.now()))
     _write_store(s)
     v = len(s[name].get('versions', []))
     return f"✅ {name} approved (v{v+1}), saved to disk"
