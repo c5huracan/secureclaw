@@ -12,7 +12,7 @@ OpenClaw proved the demand for personal AI agents. But 100k+ users gave autonomo
 
 ## How It Works
 
-One file: `secureclaw.py`. Tools persist in `tools.json`, rejections in `rejections.json`.
+One file: `secureclaw.py`. Runtime data in `tools.json`, `rejections.json`, `audit.json`.
 
 ```
 propose → compile check → human approves → tools.json + auto-grant to creator
@@ -31,16 +31,20 @@ propose → compile check → human approves → tools.json + auto-grant to crea
 
 - **Two-layer permissions** — human approves creation, agent needs scope grant for execution
 - **Auto-grant for creator** — proposing agent gets immediate access; others must be explicitly granted
+- **Dependency auto-cascade** — granting a tool auto-grants its dependencies
 - **Syntax validation** — `compile()` check before approval prompt
+- **Safe shell access** — `safecmd` integration blocks dangerous commands at the bash level
 - **Dependency tracking** — `tool_deps()` shows which tools call which
 - **Safe removal** — `remove_tool()` warns if other tools depend on it
 - **Rejection feedback** — logged with reasons so agents learn from past rejections
 - **Versioning** — overwritten tools archived with timestamps; `rollback_tool()` to undo
+- **Audit trail** — every grant/revoke persisted to `audit.json` with timestamps; `!audit` in Discord
 - **Rate limiting** — configurable per-user sliding window
+- **User allowlist** — `SECURECLAW_ALLOWED_USERS="id1,id2"` (Discord)
 
 ## Status
 
-Phase 3 complete. Self-improving agent loop tested end-to-end. Building toward multi-agent trust (Phase 4).
+Phase 4 in progress. Multi-agent trust working: audit trail, creator tracking, dependency auto-cascade, persistent audit log.
 
 ## Philosophy
 
