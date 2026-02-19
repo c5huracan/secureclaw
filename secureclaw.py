@@ -24,8 +24,12 @@ def _read_rejections():
 class GrantStore:
     "In-memory permission store for agent grants with audit trail"
     def __init__(self):
-        self.grants = {}
         self.audit = json.loads(AUDIT_LOG.read_text()) if AUDIT_LOG.exists() else []
+        self.grants = {}
+        for a in self.audit:
+            s = self.grants.setdefault(a['agent_id'], set())
+            if a['action'] == 'grant': s.add(a['scope'])
+            elif a['action'] == 'revoke': s.discard(a['scope'])
     def grant(self, agent_id, scope):
         if scope not in SCOPES: raise PermissionError(f"Unknown scope: {scope}")
         self.grants.setdefault(agent_id, set()).add(scope)
